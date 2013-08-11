@@ -232,6 +232,8 @@ class ElogViewer:
                         y, x = screen.getyx()
                         screen.move(y, x - 1)
                         self.screen.delch()
+                        if len(word) == 0: # prevent from backspacing beyond the prompt
+                            break
                         self.search(word)
                     # alphanumeric chars and '-', '/' are needed for full package atoms
                     elif curses.ascii.isalnum(subc) or subc in [45, 47]:
