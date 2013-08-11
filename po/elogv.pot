@@ -43,7 +43,7 @@ msgid ""
 "            d1d or dd -> removes selected file only\n"
 "            d4d -> removes 4 files starting from selected one\n"
 " - / -> starts a search prompt, write a string and will be showed the next\n"
-"        package that contains your string, use ESC to exit\n"
+"        package that contains your string, use ESC to exit searching and Enter to go to next occurrence\n"
 " - q -> quit\n"
 msgstr ""
 
