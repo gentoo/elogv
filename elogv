@@ -134,7 +134,8 @@ you can use these keys to control the behavior of the program:
             d1d or dd -> removes selected file only
             d4d -> removes 4 files starting from selected one
  - / -> starts a search prompt, write a string and will be showed the next
-        package that contains your string, use ESC to exit
+        package that contains your string, 
+        use ESC to exit searching and Enter to go to next occurrence
  - q -> quit
 """)
 
@@ -332,11 +333,16 @@ class ElogViewer:
                 while subc != curses.ascii.ESC:
                     if subc == ord("\n"):
                         self.search(word,1)
-                    elif subc == curses.ascii.BS:
+                    elif subc in [curses.ascii.BS, curses.KEY_BACKSPACE]:
                         word = word[:-1]
+                        y, x = screen.getyx()
+                        screen.move(y, x - 1)
                         self.screen.delch()
+                        if len(word) == 0: # prevent from backspacing beyond the prompt
+                            break
                         self.search(word)
-                    elif curses.ascii.isalpha(subc):
+                    # alphanumeric chars and '-', '/' are needed for full package atoms
+                    elif curses.ascii.isalnum(subc) or subc in [45, 47]:
                         word += chr(subc)
                         self.screen.addstr(chr(subc))
                         self.search(word)  
@@ -665,8 +671,10 @@ class ElogViewer:
                 self.change_usel(self.packages.index(x),False)
                 break
         else:
+            y, x = self.screen.getyx()
             self.screen.addstr(self.height-2,2,_("Not Found!"),
                 curses.color_pair(eerror))
+            self.screen.move(y,x) #restore cursor position to search prompt
 
 if __name__ == "__main__":
     if "--help" in sys.argv:

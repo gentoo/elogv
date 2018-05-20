@@ -24,7 +24,10 @@ Inside the program, you can use these keys:
             ds -> remove from selected item to the start of the list
             d1d or dd -> removes selected file only
         	d4d -> removes 4 files starting from selected one
- - q -> quit
+- / -> starts a search prompt, write a string and will be showed the next
+       package that contains your string, 
+       use ESC to exit searching and Enter to go to next occurrence
+- q -> quit
 
 
 Note:
