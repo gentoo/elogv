@@ -7,13 +7,13 @@ from distutils.command.build import build as _build
 from distutils.command.install import install as _install
 from distutils.command.clean import clean as _clean
 
-
 import os
 from glob import glob
 
-## Snippet of code found on 
+## Snippet of code found on
 ## http://developer.berlios.de/snippet/detail.php?type=snippet&id=100019
 ## Useful to handle *.po files under distutils
+
 
 class messages(Command):
 
@@ -39,6 +39,7 @@ class messages(Command):
         os.chdir(wd)
         if self.merge:
             self.run_command('merge')
+
 
 class merge(Command):
     description = 'Merge message catalogs with template'
@@ -75,14 +76,14 @@ class merge(Command):
 class build_messages(Command):
 
     description = 'Compile message catalogs'
-    user_options = [('build-dir=', 'd', 'directory to build message catalogs in')]
+    user_options = [('build-dir=', 'd',
+                     'directory to build message catalogs in')]
 
     def initialize_options(self):
         self.build_dir = None
 
     def finalize_options(self):
-        self.set_undefined_options('build',
-                                  ('build_messages', 'build_dir'))
+        self.set_undefined_options('build', ('build_messages', 'build_dir'))
 
     def run(self):
         self.mkpath(self.build_dir)
@@ -96,6 +97,7 @@ class build_messages(Command):
             cmd = 'msgfmt -o "%s" %s' % (out_file, f)
             os.system(cmd)
 
+
 class build(_build):
     # integrate build_message
     def has_messages(self):
@@ -108,12 +110,12 @@ class build(_build):
     def finalize_options(self):
         _build.finalize_options(self)
         if self.build_messages is None:
-            self.build_messages = os.path.join(self.build_base,
-                                               'po')
+            self.build_messages = os.path.join(self.build_base, 'po')
 
-    _build.user_options.append(('build-messages=', None,
-         "build directory for messages"))
+    _build.user_options.append(
+        ('build-messages=', None, "build directory for messages"))
     _build.sub_commands.append(('build_messages', has_messages))
+
 
 class install_messages(Command):
 
@@ -121,7 +123,7 @@ class install_messages(Command):
 
     user_options = [
         ('install-dir=', 'd', "directory to install scripts to"),
-        ('build-dir=','b', "build directory (where to install from)"),
+        ('build-dir=', 'b', "build directory (where to install from)"),
         ('skip-build', None, "skip the build steps"),
     ]
 
@@ -134,11 +136,12 @@ class install_messages(Command):
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_messages', 'build_dir'))
-        self.set_undefined_options('install',
-                                   ('install_data', 'install_dir'),
-                                   ('force', 'force'),
-                                   ('skip_build', 'skip_build'),
-                                  )
+        self.set_undefined_options(
+            'install',
+            ('install_data', 'install_dir'),
+            ('force', 'force'),
+            ('skip_build', 'skip_build'),
+        )
         self.install_dir = os.path.join(self.install_dir, 'share', 'locale')
 
     def run(self):
@@ -150,41 +153,40 @@ class install_messages(Command):
             base = os.path.splitext(base)[0]
             out_dir = os.path.join(self.install_dir, base, 'LC_MESSAGES')
             self.mkpath(out_dir)
-            out_file = os.path.join(out_dir, '%s.mo' % self.distribution.get_name())
+            out_file = os.path.join(out_dir,
+                                    '%s.mo' % self.distribution.get_name())
             copy_file(c, out_file)
 
+
 class clean(_clean):
-    _clean.user_options.append(('build-messages=', None,
-                                "build directory for messages (default: 'build.build-messages')"))
+    _clean.user_options.append(
+        ('build-messages=', None,
+         "build directory for messages (default: 'build.build-messages')"))
 
     def initialize_options(self):
         _clean.initialize_options(self)
         self.build_messages = None
 
     def finalize_options(self):
-        self.set_undefined_options('build',
-                                   ('build_base', 'build_base'),
+        self.set_undefined_options('build', ('build_base', 'build_base'),
                                    ('build_lib', 'build_lib'),
                                    ('build_scripts', 'build_scripts'),
                                    ('build_temp', 'build_temp'),
                                    ('build_messages', 'build_messages'))
-        self.set_undefined_options('bdist',
-                                   ('bdist_base', 'bdist_base'))
+        self.set_undefined_options('bdist', ('bdist_base', 'bdist_base'))
+
     def run(self):
         # remove the build/temp.<plat> directory (unless it's already
         # gone)
         if os.path.exists(self.build_temp):
             remove_tree(self.build_temp, dry_run=self.dry_run)
         else:
-            log.debug("'%s' does not exist -- can't clean it",
-                      self.build_temp)
+            log.debug("'%s' does not exist -- can't clean it", self.build_temp)
 
         if self.all:
             # remove build directories
-            for directory in (self.build_lib,
-                              self.bdist_base,
-                              self.build_scripts,
-                              self.build_messages):
+            for directory in (self.build_lib, self.bdist_base,
+                              self.build_scripts, self.build_messages):
                 if os.path.exists(directory):
                     remove_tree(directory, dry_run=self.dry_run)
                 else:
@@ -200,6 +202,7 @@ class clean(_clean):
             except OSError:
                 pass
 
+
 ## Class modified to add manpages command
 class install(_install):
     def has_messages(self):
@@ -207,42 +210,47 @@ class install(_install):
 
     def has_manpages(self):
         return True
-        
+
     _install.sub_commands.append(('install_messages', has_messages))
-    _install.sub_commands.append(('install_manpages', has_manpages))  
+    _install.sub_commands.append(('install_manpages', has_manpages))
+
 
 ### End of snippet ###
+
 
 class install_manpages(Command):
 
     description = "Install man pages"
-    
+
     user_options = []
-    
+
     def initialize_options(self):
         self.man_pages = man_pages
         self.install_dir = None
         self.root = None
-    
+
     def finalize_options(self):
-        self.set_undefined_options('install',
-                                   ('install_data', 'install_dir'),
-                                   ('root', 'root'),
-                                  )
+        self.set_undefined_options(
+            'install',
+            ('install_data', 'install_dir'),
+            ('root', 'root'),
+        )
+
     def run(self):
         for f in self.man_pages:
             attrs = f.split(".")
-            dest = os.path.join(self.install_dir,"share","man")
+            dest = os.path.join(self.install_dir, "share", "man")
             try:
-                dest = os.path.join(dest,attrs[2])
+                dest = os.path.join(dest, attrs[2])
             except IndexError:
                 pass
-            dest = os.path.join(dest,"man" + attrs[1])
+            dest = os.path.join(dest, "man" + attrs[1])
             self.mkpath(dest)
             self.copy_file(f, dest)
 
-man_pages=glob("man/*")
-      
+
+man_pages = glob("man/*")
+
 setup(name="elogv",
       version="0.7.9",
       author="Luca Marturana",
@@ -251,12 +259,13 @@ setup(name="elogv",
       description="Curses based utility to view elogs created by Portage",
       url="https://gitweb.gentoo.org/proj/elogv.git/",
       scripts=['elogv'],
-      cmdclass={'extract_messages': messages,
-                'merge': merge,
-                'build_messages': build_messages,
-                'build': build,
-                'install_messages': install_messages,
-                'install_manpages': install_manpages,
-                'install': install,
-                'clean': clean}
-)
+      cmdclass={
+          'extract_messages': messages,
+          'merge': merge,
+          'build_messages': build_messages,
+          'build': build,
+          'install_messages': install_messages,
+          'install_manpages': install_manpages,
+          'install': install,
+          'clean': clean
+      })
