@@ -713,8 +713,10 @@ if __name__ == "__main__":
         sys.exit()
 
     # Get the path of the elogdir
-    if port_settings["PORT_LOGDIR"]:
-        elogdir = os.path.join(port_settings["PORT_LOGDIR"], "elog")
+    for logdir_var in ["PORTAGE_LOGDIR", "PORT_LOGDIR"]:
+        if logdir_var in port_settings:
+            elogdir = os.path.join(port_settings[logdir_var], "elog")
+            break
     else:
         elogdir = os.path.join(
             os.sep, port_settings["EPREFIX"], "var", "log", "portage", "elog"
