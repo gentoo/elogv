@@ -1,5 +1,8 @@
 # ChangeLog for elogv
 
+0.8.4
+  * Better handling for QA logs (#22)
+
 0.8.3
   * Support variable PORTAGE_LOGDIR (#21)
   * Correct/clarify code license to be "GPL v2 or later" in packaging (#19)
